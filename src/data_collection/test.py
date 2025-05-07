@@ -1,9 +1,14 @@
-import os, re, json, time, datetime, requests
+"""
+TUM degree‑program scraper v5  ·  single‑page → structured JSON
+---------------------------------------------------------------
+✓ program_description            ✓ key_data（嵌套 costs / language 数组）
+✓ information_on_degree_program  ✓ application_and_admission
+  └─ 每个小标题 {"text","links"}  ✓ 统一空白清洗
+"""
+
+import re, json, requests
 from bs4 import BeautifulSoup
-from slugify import slugify                     # pip install python-slugify
-from typing import List, Tuple
-import urllib.parse as up
-from urllib.parse import urlparse
+
 # ──────────────────────────────────────────────────────────────
 # 共用：空白归一化  (去 \n\t\t → 单空格)
 # ──────────────────────────────────────────────────────────────
@@ -157,97 +162,16 @@ def scrape_tum_program(url: str, program_name: str) -> dict:
     return data
 
 
-# -- 1) 从列表页抓 “名称 + URL” ----------------------------------
-def get_program_list(page_n: int) -> List[Tuple[str, str]]:
-    """
-    page_n : 1..12   TUM A‑Z 列表真实分页号
-    返回 [(课程名, 详情页完整 URL), ...]
-    """
-    base = "https://www.tum.de/en/studies/degree-programs"
-    params = {
-        "tx_in2studyfinder_pi1[studyCoursesForPage][currentPage]": str(page_n),
-        "type": "1308171055"               # 必带；cHash 可省略
-    }
-    url = f"{base}?{up.urlencode(params, safe='[]')}"
-    print(f"   🔍  Fetching list‑page: {url}")
-
-    html = requests.get(url, timeout=15).content
-    soup = BeautifulSoup(html, "html.parser")
-
-    programs = []
-    for card in soup.select("article.list-teaser"):
-        name_tag  = card.select_one("h3.h4")
-        link_tag  = card.select_one("footer.list-teaser__footer a")  # ← 你的 <a>
-        if not (name_tag and link_tag):
-            continue
-
-        name = name_tag.get_text(strip=True)
-        rel  = link_tag["href"].strip()
-        if "/detail/" not in rel:
-            parts = rel.split("/degree-programs/")
-            rel   = f"{parts[0]}/degree-programs/detail/{parts[1]}"
-
-        full = rel if rel.startswith("http") else f"https://www.tum.de{rel}"
-
-        programs.append((name, full))
-
-    print(f"   📊  Found {len(programs)} programs on page {page_n}")
-    return programs
-
-# -- 2) 主批处理 --------------------------------------------------
-
-def slug_and_degree(url: str) -> tuple[str, str]:
-    """
-    输入完整详情页 URL
-    返回 (slug_without_degree, degree_abbrev)  →  ('aerospace', 'msc')
-    """
-    path = urlparse(url).path         # /en/studies/…/aerospace-master-of-science-msc
-    slug = path.rstrip("/").split("/")[-1]         # aerospace-master-of-science-msc
-    parts = slug.split("-")
-    deg   = parts[-1].lower()                      # msc / bsc / ma / ba …
-    base  = "-".join(parts[:-4])                  # 去掉 “‑master‑of‑science‑msc”
-    if not base:                                  # 部分学位缩写只有 3 段
-        base = "-".join(parts[:-1])               # 兜底
-    return base, deg
-
-# Get the workspace root directory (2 levels up from this script)
-WORKSPACE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
-
-def scrape_all_pages():
-    today_stamp = datetime.date.today().strftime("%Y%m%d")
-    out_dir = os.path.join(WORKSPACE_ROOT, "data", "raw")
-    os.makedirs(out_dir, exist_ok=True)
-    out_jsonl = os.path.join(out_dir, f"tum_programs_{today_stamp}.jsonl")
-    
-    programs_dir = os.path.join(out_dir, "programs")
-    os.makedirs(programs_dir, exist_ok=True)
-
-    with open(out_jsonl, "w", encoding="utf-8") as fout:
-        for page in range(1, 13):                       # 0…11 共12页
-            print(f"\n🌀  Page {page}/12 …")
-            programs = get_program_list(page)
-            if not programs:  # 如果当前页没有数据，可能已经到达最后一页
-                print(f"   ⚠️  Page {page+1} is empty, stopping...")
-                break
-            for name, url in programs:
-                print(f"   ↳  Scraping: {name}")
-                try:
-                    data = scrape_tum_program(url, name)
-                    json_line = json.dumps(data, ensure_ascii=False)
-                    fout.write(json_line + "\n")
-
-                    # 可选：单文件保存
-                    base_slug, deg = slug_and_degree(url)
-                    fname = f"{base_slug}-{deg}.json"
-                    with open(os.path.join(programs_dir, fname), "w", encoding="utf-8") as f:
-                        json.dump(data, f, ensure_ascii=False, indent=2)
-
-                    time.sleep(0.5)                  # 温和爬取
-                except Exception as e:
-                    print(f"   ❌  {name} — error: {e}")
-
-    print(f"\n✅ 全部完成！结果已写入 {out_jsonl}  (并在 {programs_dir} 生成单文件)")
-
-# ---------------- 入口 ----------------
+# ──────────────────────────────────────────────────────────────
+# ④ 单页测试（改 URL 和 NAME 即可）
+# ──────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    scrape_all_pages()
+    URL  = "https://www.tum.de/en/studies/degree-programs/detail/chemical-biotechnology-bachelor-of-science-bsc"
+    NAME = "Bachelor Chemical Biotechnology"
+
+    result = scrape_tum_program(URL, NAME)
+
+    with open("chemical-biotechnology_bachelor_structured.json", "w", encoding="utf-8") as f:
+        json.dump(result, f, ensure_ascii=False, indent=2)
+
+    print("✅ 已保存：chemical-biotechnology_bachelor_structured.json")
