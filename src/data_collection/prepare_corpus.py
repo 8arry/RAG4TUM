@@ -36,11 +36,19 @@ def iter_chunks(rec: Dict) -> Generator[Dict, None, None]:
     """Yield chunk dicts with text + metadata."""
     prog = rec["program_name"]
     key_data = rec.get("key_data", {})
+    
+    # 将关键信息格式化为文本
+    key_info = []
+    if key_data:
+        for key, value in key_data.items():
+            if value:  # 只添加非空值
+                key_info.append(f"{key}: {value}")
+    key_info_text = "\n".join(key_info)
 
     # 1) description - 不需要分割
     if rec.get("program_description"):
         yield {
-            "text": normalize_ws(rec["program_description"]),
+            "text": normalize_ws(f"{key_info_text}\n\n{rec['program_description']}"),
             "metadata": {
                 "program": prog,
                 "category": "desc",
@@ -65,7 +73,9 @@ def iter_chunks(rec: Dict) -> Generator[Dict, None, None]:
 
             # 根据内容类型选择不同的 chunk 大小
             max_len = 1000 if sec == "program_profile" else 800
-            chunks = split_long(txt, max_len)
+            # 将关键信息添加到文本开头
+            full_text = f"{key_info_text}\n\n{txt}"
+            chunks = split_long(full_text, max_len)
             
             for i, chunk in enumerate(chunks):
                 yield {
