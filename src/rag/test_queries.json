@@ -1,0 +1,54 @@
+{
+    "queries": [
+        {
+            "query": "How many credits is Information Engineering Master program?",
+            "expected_program": "Information Engineering (at TUM Campus Heilbronn)",
+            "expected_info": "Credits: 120"
+        },
+        {
+            "query": "What is the main location of Information Engineering Master?",
+            "expected_program": "Information Engineering (at TUM Campus Heilbronn)",
+            "expected_info": "Main Locations: Heilbronn"
+        },
+        {
+            "query": "What is the duration of Information Engineering Master program?",
+            "expected_program": "Information Engineering (at TUM Campus Heilbronn)",
+            "expected_info": "Standard Duration Of Studies: 4 semesters"
+        },
+        {
+            "query": "What is the language requirement for Information Engineering Master?",
+            "expected_program": "Information Engineering (at TUM Campus Heilbronn)",
+            "expected_info": "Required Language Proficiency: English"
+        },
+        {
+            "query": "What is the application period for Information Engineering Master?",
+            "expected_program": "Information Engineering (at TUM Campus Heilbronn)",
+            "expected_info": "Application Period: Winter semester: 01.02. – 31.05. Summer semester: 01.09. – 30.11."
+        },
+        {
+            "query": "What is the program structure of Information Engineering Master?",
+            "expected_program": "Information Engineering (at TUM Campus Heilbronn)",
+            "expected_info": "program_structure"
+        },
+        {
+            "query": "What are the costs for Information Engineering Master program?",
+            "expected_program": "Information Engineering (at TUM Campus Heilbronn)",
+            "expected_info": "Student Fees: 85.00 €"
+        },
+        {
+            "query": "What is the admission category for Information Engineering Master?",
+            "expected_program": "Information Engineering (at TUM Campus Heilbronn)",
+            "expected_info": "Admission Category: Aptitude Assessment for Master"
+        },
+        {
+            "query": "When can I start Information Engineering Master program?",
+            "expected_program": "Information Engineering (at TUM Campus Heilbronn)",
+            "expected_info": "Start Of Degree Program: Possible for both winter and summer semester"
+        },
+        {
+            "query": "What is the program description of Information Engineering Master?",
+            "expected_program": "Information Engineering (at TUM Campus Heilbronn)",
+            "expected_info": "program_description"
+        }
+    ]
+} 

@@ -32,29 +32,70 @@ WS_PATTERN = re.compile(r"\s+")
 def normalize_ws(text: str) -> str:
     return WS_PATTERN.sub(" ", text).strip()
 
+def format_key_info(key_data: Dict) -> str:
+    """格式化关键信息，保持重要信息的可见性"""
+    info_parts = []
+    
+    # 特别处理重要字段
+    if "main_locations" in key_data:
+        locations = key_data["main_locations"]
+        info_parts.append(f"Main Locations: {', '.join(locations)}")
+    
+    # 处理其他重要字段
+    important_fields = [
+        "type_of_study",
+        "standard_duration_of_studies",
+        "credits",
+        "application_period",
+        "admission_category",
+        "start_of_degree_program",
+        "required_language_proficiency"
+    ]
+    
+    for field in important_fields:
+        if field in key_data and key_data[field]:
+            value = key_data[field]
+            if isinstance(value, list):
+                value = ", ".join(value)
+            info_parts.append(f"{field.replace('_', ' ').title()}: {value}")
+    
+    # 处理其他字段
+    for key, value in key_data.items():
+        if key not in important_fields and key != "main_locations" and value:
+            if isinstance(value, dict):
+                # 处理嵌套字典（如 costs）
+                for subkey, subvalue in value.items():
+                    info_parts.append(f"{subkey.replace('_', ' ').title()}: {subvalue}")
+            else:
+                info_parts.append(f"{key.replace('_', ' ').title()}: {value}")
+    
+    return "\n".join(info_parts)
+
 def iter_chunks(rec: Dict) -> Generator[Dict, None, None]:
     """Yield chunk dicts with text + metadata."""
     prog = rec["program_name"]
     key_data = rec.get("key_data", {})
     
-    # 将关键信息格式化为文本
-    key_info = []
-    if key_data:
-        for key, value in key_data.items():
-            if value:  # 只添加非空值
-                key_info.append(f"{key}: {value}")
-    key_info_text = "\n".join(key_info)
+    # 保持关键信息的结构化
+    base_metadata = {
+        "program": prog,
+        "key_data": key_data,  # 保持原始结构
+        "category": "desc",
+        "section": "overview"
+    }
+    
+    # 生成包含关键信息的文本
+    key_info_text = format_key_info(key_data)
 
     # 1) description - 不需要分割
     if rec.get("program_description"):
         yield {
             "text": normalize_ws(f"{key_info_text}\n\n{rec['program_description']}"),
             "metadata": {
-                "program": prog,
+                **base_metadata,
                 "category": "desc",
                 "section": "overview",
                 "links": [],
-                "key_data": key_data,
                 "chunk_index": 0,
                 "total_chunks": 1
             }
@@ -81,11 +122,10 @@ def iter_chunks(rec: Dict) -> Generator[Dict, None, None]:
                 yield {
                     "text": chunk,
                     "metadata": {
-                        "program": prog,
+                        **base_metadata,
                         "category": cat,
                         "section": sec,
                         "links": links,
-                        "key_data": key_data,
                         "chunk_index": i,
                         "total_chunks": len(chunks)
                     }
@@ -158,12 +198,10 @@ def build_corpus(in_dir: str, max_len: int) -> List[Dict]:
                 if sig in seen:
                     continue
                 seen.add(sig)
-                meta = chunk["metadata"].copy()
-                meta["key_data"] = rec.get("key_data", {})
                 docs.append({
                     "id": uuid.uuid4().hex,
                     "text": piece,
-                    "metadata": meta
+                    "metadata": chunk["metadata"]
                 })
     return docs
 
