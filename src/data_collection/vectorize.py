@@ -84,13 +84,11 @@ def load_documents(file_path: str) -> Tuple[List[Dict], List[str]]:
 
 def create_faiss_index(embeddings: List[np.ndarray], dimension: int) -> faiss.Index:
     """创建 FAISS 索引"""
-    # 创建索引
-    index = faiss.IndexFlatL2(dimension)
-    
-    # 将向量添加到索引
-    embeddings_array = np.array(embeddings).astype('float32')
-    index.add(embeddings_array)
-    
+    vecs = np.vstack(embeddings).astype("float32")
+    # 归一化 → cosine
+    vecs /= np.linalg.norm(vecs, axis=1, keepdims=True) + 1e-10
+    index = faiss.IndexFlatIP(dimension)
+    index.add(vecs)
     return index
 
 def save_index_and_docs(index: faiss.Index, documents: List[Dict], out_dir: str):

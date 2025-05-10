@@ -8,27 +8,29 @@ test_retriever.py  ·  测试检索器
 import os
 from retriever import Retriever
 
+
+WORKSPACE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+
 def print_results(results):
     """打印搜索结果"""
     print("\n搜索结果:")
     print("-" * 80)
     for i, result in enumerate(results, 1):
         print(f"\n结果 {i}:")
-        print(f"程序: {result['program_name']}")
-        print(f"相似度分数: {result['score']:.4f}")
+        print(f"程序: {result['metadata']['program']}")
+        print(f"相似度分数: {result['similarity']:.4f}")
         print(f"内容: {result['text'][:200]}...")  # 只显示前200个字符
         print("-" * 80)
 
 def main():
     # 初始化检索器
-    retriever = Retriever()
+    index_path = os.path.join(WORKSPACE_ROOT, "data", "embeddings", "tum_programs.index")
+    docs_path = os.path.join(WORKSPACE_ROOT, "data", "embeddings", "tum_programs_metadata.json")
+    retriever = Retriever(index_path=index_path, docs_path=docs_path)
     
     # 测试查询
     test_queries = [
-        "How many credits is Information Engineering Master program?",
-        "credits for Information Engineering Master program?",
-        "Information Engineering Master program credits",
-        "How many credits is Information Engineering Master program?"
+        "How to apply for Information Engineering Master program?"
     ]
     
     for query in test_queries:

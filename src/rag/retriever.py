@@ -29,10 +29,29 @@ class Retriever:
         
         # 加载文档
         self.docs = []
-        with open(docs_path, "r", encoding="utf-8") as f:
-            for line in f:
-                self.docs.append(json.loads(line))
-        
+        try:
+            with open(docs_path, "r", encoding="utf-8") as f:
+                # 尝试作为单个JSON对象读取
+                try:
+                    data = json.load(f)
+                    if isinstance(data, list):
+                        self.docs = data
+                    else:
+                        self.docs = [data]
+                except json.JSONDecodeError:
+                    # 如果失败，尝试作为JSONL文件读取
+                    f.seek(0)  # 重置文件指针
+                    for line in f:
+                        line = line.strip()
+                        if line:  # 跳过空行
+                            try:
+                                self.docs.append(json.loads(line))
+                            except json.JSONDecodeError as e:
+                                print(f"警告：跳过无效的JSON行: {e}")
+                                continue
+        except Exception as e:
+            print(f"错误：无法加载文档文件: {e}")
+            raise
         # 初始化 OpenAI 客户端
         self.client = OpenAI(api_key=api_key)
     
