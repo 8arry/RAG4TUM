@@ -1,0 +1,7 @@
+index_dir: ../../data/embeddings          # 内含 index.faiss + index.pkl + bm25.pkl
+embed_model: text-embedding-3-small
+reranker_model: BAAI/bge-reranker-base
+n_dense: 40                         # dense 召回量
+n_sparse: 40                        # BM25 召回量
+top_m: 12                           # 重排后入榜
+top_k: 8                            # 返回给 LLM
