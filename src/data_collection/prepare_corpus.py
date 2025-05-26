@@ -4,12 +4,12 @@
 prepare_corpus_v2.py   ·   TUM program ETL (improved)
 -----------------------------------------------------
 • data/raw/*.json  ->  data/processed/tum_program_docs.jsonl
-• 改进:
-    1. KeyData 独立 chunk
-    2. 正文 256-token 滑窗 (stride 128)
-    3. chunk 顶部留 "INFO · Program Structure" 标题
-    4. metadata 含 slug / degree
-    5. 去重键 (slug, section, chunk_idx)
+• Improvements:
+    1. KeyData independent chunks
+    2. Main text 256-token sliding window (stride 128)
+    3. Chunk header keeps "INFO · Program Structure" title
+    4. Metadata contains slug / degree
+    5. Deduplication key (slug, section, chunk_idx)
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ import tiktoken
 from urllib.parse import urlparse
 from slugify import slugify
 
-enc = tiktoken.get_encoding("cl100k_base")      # GPT-4 系列 tokenizer
+enc = tiktoken.get_encoding("cl100k_base")      # GPT-4 series tokenizer
 
 # ─────────── utils ────────────
 WS = re.compile(r"\s+")
@@ -31,8 +31,8 @@ def normalize(text: str) -> str:
 
 def slug_and_degree(url: str | None, prog_name: str, key_data: Dict) -> tuple[str, str]:
     """
-    若 url 存在 → 从 slug 提 degree 缩写；
-    若 url 缺失 → 用 program_name slug；degree 从 key_data.admission_category 猜测。
+    If url exists → extract degree abbreviation from slug;
+    If url missing → use program_name slug; guess degree from key_data.admission_category.
     """
     if url:
         path = urlparse(url).path.rstrip("/")
@@ -44,7 +44,7 @@ def slug_and_degree(url: str | None, prog_name: str, key_data: Dict) -> tuple[st
 
     # ---- Fallback: derive from program_name ----
     prog_slug = slugify(prog_name, lowercase=True)
-    # 尝试从 admission_category 抽 degree
+    # Try to extract degree from admission_category
     ac = key_data.get("admission_category", "").lower()
     if "master" in ac:
         degree = "msc"
@@ -93,7 +93,7 @@ def iter_chunks(rec: Dict) -> Generator[Dict, None, None]:
         return {"program": rec["program_name"], "slug": slug, "degree": deg,
                 "category": cat, "section": sec}
 
-    # ----- 描述 -----
+    # ----- Description -----
     if rec.get("program_description"):
         yield {
             "id": uuid.uuid4().hex,
@@ -101,7 +101,7 @@ def iter_chunks(rec: Dict) -> Generator[Dict, None, None]:
             "metadata": base_meta("desc", "overview")
         }
 
-    # ----- 长文本块 -----
+    # ----- Long text blocks -----
     for block, cat in [("information_on_degree_program", "info"),
                        ("application_and_admission", "apply")]:
         for sec, payload in rec.get(block, {}).items():
@@ -145,9 +145,9 @@ def build_corpus(in_dir: str) -> List[Dict]:
 # ─────────── main ────────────
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--in_dir", default="data/raw", help="原始 JSON 目录")
+    ap.add_argument("--in_dir", default="data/raw", help="Raw JSON directory")
     ap.add_argument("--out_file", default="data/processed/tum_program_docs.jsonl",
-                    help="输出 JSONL")
+                    help="Output JSONL file")
     args = ap.parse_args()
 
     pathlib.Path(args.out_file).parent.mkdir(parents=True, exist_ok=True)

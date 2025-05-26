@@ -5,14 +5,14 @@ from typing import List, Tuple
 import urllib.parse as up
 from urllib.parse import urlparse
 # ──────────────────────────────────────────────────────────────
-# 共用：空白归一化  (去 \n\t\t → 单空格)
+# Common: Whitespace normalization (remove \n\t\t → single space)
 # ──────────────────────────────────────────────────────────────
 def normalize_ws(text: str) -> str:
     return re.sub(r'\s+', ' ', text).strip()
 
 
 # ──────────────────────────────────────────────────────────────
-# ① 解析 Key Data（适配 .bluebox 九宫格）
+# ① Parse Key Data (adapted for .bluebox grid)
 # ──────────────────────────────────────────────────────────────
 def parse_key_data(soup: BeautifulSoup) -> dict:
     data, costs = {}, {}
@@ -26,7 +26,7 @@ def parse_key_data(soup: BeautifulSoup) -> dict:
             continue
         key_txt = normalize_ws(label.get_text()).lower()
 
-        # 抓 value（ul 或 p）
+        # Extract value (ul or p)
         ul = blk.find("ul")
         if ul:
             items = [normalize_ws(li.get_text(" ", strip=True))
@@ -36,7 +36,7 @@ def parse_key_data(soup: BeautifulSoup) -> dict:
             p = blk.find("p")
             value = normalize_ws(p.get_text()) if p else ""
 
-        # 映射字段
+        # Map fields
         if "type of study" in key_txt:
             data["type_of_study"] = value
         elif "standard duration" in key_txt:
@@ -69,7 +69,7 @@ def parse_key_data(soup: BeautifulSoup) -> dict:
 
 
 # ──────────────────────────────────────────────────────────────
-# ② 通用函数：抽取带小标题块（流式文本+链接）
+# ② Generic function: Extract sections with subtitles (flowing text + links)
 # ──────────────────────────────────────────────────────────────
 def extract_section(soup: BeautifulSoup,
                     h2_keyword: str,
@@ -84,17 +84,17 @@ def extract_section(soup: BeautifulSoup,
 
     current_key = None
     for tag in container.descendants:
-        # 1) 小标题切换
+        # 1) Subtitle switching
         if tag.name in {"h3", "strong"}:
             t = normalize_ws(tag.get_text()).lower()
             for patt, field in mapping.items():
                 if patt in t:
                     current_key = field
                     break
-        # 2) 文本
+        # 2) Text
         elif tag.name == "p" and current_key:
             res[current_key]["text"] += normalize_ws(tag.get_text()) + " "
-        # 3) 链接
+        # 3) Links
         elif tag.name == "a" and current_key and tag.get("href"):
             url = tag["href"].strip()
             url = f"https://www.tum.de{url}" if url.startswith("/") else url
@@ -102,14 +102,14 @@ def extract_section(soup: BeautifulSoup,
                 {"text": normalize_ws(tag.get_text()), "url": url}
             )
 
-    # 清理末尾空格
+    # Clean trailing spaces
     for v in res.values():
         v["text"] = v["text"].strip()
     return res
 
 
 # ──────────────────────────────────────────────────────────────
-# ③ 主函数：单页 → 结构化 JSON
+# ③ Main function: Single page → Structured JSON
 # ──────────────────────────────────────────────────────────────
 def scrape_tum_program(url: str, program_name: str) -> dict:
     html = requests.get(url, timeout=15).content
@@ -157,16 +157,16 @@ def scrape_tum_program(url: str, program_name: str) -> dict:
     return data
 
 
-# -- 1) 从列表页抓 “名称 + URL” ----------------------------------
+# -- 1) Extract "Name + URL" from list page ----------------------------------
 def get_program_list(page_n: int) -> List[Tuple[str, str]]:
     """
-    page_n : 1..12   TUM A‑Z 列表真实分页号
-    返回 [(课程名, 详情页完整 URL), ...]
+    page_n : 1..12   TUM A‑Z list actual page number
+    Returns [(program_name, detail_page_full_URL), ...]
     """
     base = "https://www.tum.de/en/studies/degree-programs"
     params = {
         "tx_in2studyfinder_pi1[studyCoursesForPage][currentPage]": str(page_n),
-        "type": "1308171055"               # 必带；cHash 可省略
+        "type": "1308171055"               # Required; cHash can be omitted
     }
     url = f"{base}?{up.urlencode(params, safe='[]')}"
     print(f"   🔍  Fetching list‑page: {url}")
@@ -177,7 +177,7 @@ def get_program_list(page_n: int) -> List[Tuple[str, str]]:
     programs = []
     for card in soup.select("article.list-teaser"):
         name_tag  = card.select_one("h3.h4")
-        link_tag  = card.select_one("footer.list-teaser__footer a")  # ← 你的 <a>
+        link_tag  = card.select_one("footer.list-teaser__footer a")  # ← Your <a> tag
         if not (name_tag and link_tag):
             continue
 
@@ -194,20 +194,20 @@ def get_program_list(page_n: int) -> List[Tuple[str, str]]:
     print(f"   📊  Found {len(programs)} programs on page {page_n}")
     return programs
 
-# -- 2) 主批处理 --------------------------------------------------
+# -- 2) Main batch processing --------------------------------------------------
 
 def slug_and_degree(url: str) -> tuple[str, str]:
     """
-    输入完整详情页 URL
-    返回 (slug_without_degree, degree_abbrev)  →  ('aerospace', 'msc')
+    Input: Complete detail page URL
+    Returns: (slug_without_degree, degree_abbrev)  →  ('aerospace', 'msc')
     """
     path = urlparse(url).path         # /en/studies/…/aerospace-master-of-science-msc
     slug = path.rstrip("/").split("/")[-1]         # aerospace-master-of-science-msc
     parts = slug.split("-")
     deg   = parts[-1].lower()                      # msc / bsc / ma / ba …
-    base  = "-".join(parts[:-4])                  # 去掉 “‑master‑of‑science‑msc”
-    if not base:                                  # 部分学位缩写只有 3 段
-        base = "-".join(parts[:-1])               # 兜底
+    base  = "-".join(parts[:-4])                  # Remove "‑master‑of‑science‑msc"
+    if not base:                                  # Some degree abbreviations only have 3 parts
+        base = "-".join(parts[:-1])               # Fallback
     return base, deg
 
 # Get the workspace root directory (2 levels up from this script)
@@ -223,10 +223,10 @@ def scrape_all_pages():
     os.makedirs(programs_dir, exist_ok=True)
 
     with open(out_jsonl, "w", encoding="utf-8") as fout:
-        for page in range(1, 13):                       # 0…11 共12页
+        for page in range(1, 13):                       # 0…11 total 12 pages
             print(f"\n🌀  Page {page}/12 …")
             programs = get_program_list(page)
-            if not programs:  # 如果当前页没有数据，可能已经到达最后一页
+            if not programs:  # If current page has no data, might have reached the last page
                 print(f"   ⚠️  Page {page+1} is empty, stopping...")
                 break
             for name, url in programs:
@@ -236,18 +236,18 @@ def scrape_all_pages():
                     json_line = json.dumps(data, ensure_ascii=False)
                     fout.write(json_line + "\n")
 
-                    # 可选：单文件保存
+                    # Optional: single file save
                     base_slug, deg = slug_and_degree(url)
                     fname = f"{base_slug}-{deg}.json"
                     with open(os.path.join(programs_dir, fname), "w", encoding="utf-8") as f:
                         json.dump(data, f, ensure_ascii=False, indent=2)
 
-                    time.sleep(0.5)                  # 温和爬取
+                    time.sleep(0.5)                  # Gentle crawling
                 except Exception as e:
                     print(f"   ❌  {name} — error: {e}")
 
-    print(f"\n✅ 全部完成！结果已写入 {out_jsonl}  (并在 {programs_dir} 生成单文件)")
+    print(f"\n✅ All completed! Results written to {out_jsonl} (and single files generated in {programs_dir})")
 
-# ---------------- 入口 ----------------
+# ---------------- Entry point ----------------
 if __name__ == "__main__":
     scrape_all_pages()

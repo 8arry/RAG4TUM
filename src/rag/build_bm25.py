@@ -7,20 +7,20 @@ from langchain_openai import OpenAIEmbeddings
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 DOCSTORE_DIR = ROOT / "data" / "embeddings"
 
-# 1. 读取 LangChain 向量库，获取文本 + metadata
+# 1. Load LangChain vector store, get text + metadata
 emb = OpenAIEmbeddings(model="text-embedding-3-small")
 vectordb = FAISS.load_local(DOCSTORE_DIR, emb,
                             allow_dangerous_deserialization=True)
 docs = list(vectordb.docstore._dict.values())
 
-# 2. 构建 BM25
+# 2. Build BM25 index
 def tokenize(text):
     return re.findall(r"\w+", text.lower())
 
 corpus_tokens = [tokenize(d.page_content) for d in docs]
 bm25 = BM25Okapi(corpus_tokens)
 
-# 3. 序列化
+# 3. Serialize and save
 with open(f"{DOCSTORE_DIR}/bm25.pkl", "wb") as f:
     pickle.dump({"bm25": bm25, "docs": docs}, f)
 

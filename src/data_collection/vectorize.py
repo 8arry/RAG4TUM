@@ -3,10 +3,10 @@
 """
 vectorize.py  ·  TUM program data vectorization
 ------------------------------------------
-读取 JSONL 文件 →
-  · 使用 OpenAI 进行向量化
-  · 使用 FAISS 建立索引
-  · 保存向量和索引
+Read JSONL file →
+  · Use OpenAI for vectorization
+  · Build FAISS index
+  · Save vectors and index
 
 Usage
 -----
@@ -47,11 +47,11 @@ def main():
 
     ap = argparse.ArgumentParser()
     ap.add_argument("--in_file", default=WORKSPACE_ROOT / "data/processed/tum_program_docs.jsonl",
-                    help="输入 JSONL")
+                    help="Input JSONL file")
     ap.add_argument("--out_dir", default=WORKSPACE_ROOT / "data/embeddings",
-                    help="向量库输出目录")
+                    help="Vector store output directory")
     ap.add_argument("--model",   default="text-embedding-3-small",
-                    help="OpenAI 嵌入模型")
+                    help="OpenAI embedding model")
     args = ap.parse_args()
 
     print("🗂  Loading JSONL …")
