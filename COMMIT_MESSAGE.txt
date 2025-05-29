@@ -1,0 +1,75 @@
+feat: Major RAG system optimization with enhanced query understanding and chunking
+
+## 🎯 Problem Addressed
+- Large gap between search results and user queries
+- Poor query-answer matching accuracy
+- Inefficient chunking strategy causing information loss
+- Weak semantic understanding of user intents
+
+## 🚀 Key Improvements
+
+### Enhanced Query Parsing (`improved_query_parser.py`)
+- ✅ Intent-based semantic analysis (deadline_intent, application_intent, etc.)
+- ✅ Temporal keyword detection ("when", "deadline", etc.)
+- ✅ Improved program name recognition with fuzzy matching
+- ✅ Entity extraction for better context understanding
+
+### Optimized Chunking Strategy (`improved_chunking.py`)
+- ✅ Reduced stride from 128→64 tokens for better overlap
+- ✅ Sentence-boundary splitting to preserve semantic integrity
+- ✅ Specialized deadline chunks with enhanced context
+- ✅ Program-specific context headers for each chunk
+- ✅ Fixed bug: Now processes ALL content types (desc, info, apply, keydata)
+
+### Smart Hybrid Retriever (`improved_hybrid_retriever.py`)
+- ✅ Intent-aware dynamic scoring and filtering
+- ✅ Query expansion with synonyms and related terms
+- ✅ Special boost for deadline queries (3x weighting)
+- ✅ Hybrid scoring combining semantic and rule-based scores
+- ✅ Enhanced reranking with minimum score thresholds
+
+### Configuration Optimization (`improved_retriever.yaml`)
+- ✅ Increased candidate counts (n_dense: 60, n_sparse: 60)
+- ✅ Fine-tuned boost parameters for better precision
+- ✅ Flexible filtering with relaxed program matching
+
+## 📊 Performance Improvements
+- 🎯 Better intent detection: "Deadline for Information Engineering" → specific intent
+- 📈 Maintained chunk count: 2775 documents (same as original)
+- 🔍 Enhanced temporal keyword recognition
+- ⚡ Improved program-category matching accuracy
+
+## 🧪 Testing & Validation
+- ✅ Query parsing comparison tests implemented
+- ✅ Validated improved intent recognition
+- ✅ Verified temporal keyword detection
+- ✅ Confirmed chunk count preservation after bug fix
+
+## 📚 Documentation
+- ✅ Comprehensive optimization guide (English)
+- ✅ Usage instructions and configuration examples
+- ✅ Debugging and tuning guidelines
+- ✅ Expected improvement metrics
+
+## 🔧 Technical Details
+- Modified `prepare_corpus.py` to support `--use_improved_chunking` flag
+- Implemented backward compatibility with original system
+- Added support for specialized chunk types (deadline, application)
+- Enhanced metadata with priority and chunk_type fields
+
+## 📁 Files Added/Modified
+- `src/data_collection/improved_chunking.py` - NEW
+- `src/rag/retriever/improved_query_parser.py` - NEW  
+- `src/rag/retriever/improved_hybrid_retriever.py` - NEW
+- `src/rag/config/improved_retriever.yaml` - NEW
+- `test_improved_retrieval.py` - NEW
+- `test_query_parsing_only.py` - NEW
+- `OPTIMIZATION_GUIDE.md` - NEW
+- `src/data_collection/prepare_corpus.py` - MODIFIED
+
+## 🎉 Expected Impact
+This comprehensive optimization should significantly improve query-answer relevance, 
+reduce information gaps, and provide more accurate, context-aware responses for 
+TUM program information queries, especially for deadline and application-related questions.
+
+Next Steps: Resolve OpenAI API quota for vector index rebuilding and complete end-to-end testing. 

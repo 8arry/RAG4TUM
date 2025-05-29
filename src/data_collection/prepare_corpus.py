@@ -125,11 +125,24 @@ def iter_chunks(rec: Dict) -> Generator[Dict, None, None]:
 
 
 # ─────────── build corpus ────────────
-def build_corpus(in_dir: str) -> List[Dict]:
+def build_corpus(in_dir: str, use_improved_chunking: bool = False) -> List[Dict]:
     docs, seen = [], set()
+    
+    # Import improved chunking functions if needed
+    if use_improved_chunking:
+        try:
+            from improved_chunking import create_qa_oriented_chunks
+            chunk_function = create_qa_oriented_chunks
+            print("✔ Using improved chunking strategy")
+        except ImportError:
+            print("⚠ Warning: improved_chunking.py not found, falling back to standard chunking")
+            chunk_function = iter_chunks
+    else:
+        chunk_function = iter_chunks
+    
     for fp in glob.glob(f"{in_dir.rstrip('/')}/**/*.json", recursive=True):
         rec = json.load(open(fp, encoding="utf-8"))
-        for chunk in iter_chunks(rec):
+        for chunk in chunk_function(rec):
             if len(chunk["text"]) < 30:
                 continue
             sig = (chunk["metadata"]["slug"],
@@ -148,10 +161,12 @@ if __name__ == "__main__":
     ap.add_argument("--in_dir", default="data/raw", help="Raw JSON directory")
     ap.add_argument("--out_file", default="data/processed/tum_program_docs.jsonl",
                     help="Output JSONL file")
+    ap.add_argument("--use_improved_chunking", action="store_true", 
+                    help="Use improved chunking strategy for better Q&A matching")
     args = ap.parse_args()
 
     pathlib.Path(args.out_file).parent.mkdir(parents=True, exist_ok=True)
-    docs = build_corpus(args.in_dir)
+    docs = build_corpus(args.in_dir, args.use_improved_chunking)
 
     with open(args.out_file, "w", encoding="utf-8") as f:
         for d in docs:

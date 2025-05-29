@@ -1,0 +1,27 @@
+index_dir: ../../data/embeddings          # Vector and BM25 index directory
+embed_model: text-embedding-3-small      # OpenAI embedding model
+reranker_model: BAAI/bge-reranker-base    # Cross-encoder reranker
+
+# Retrieval parameters - optimized for accuracy over speed
+n_dense: 60                         # Increased dense retrieval candidates
+n_sparse: 60                        # Increased BM25 retrieval candidates  
+top_m: 20                          # More candidates for reranking
+top_k: 10                          # Return more results
+
+# New parameters for improved matching
+query_expansion: true               # Expand queries with synonyms
+semantic_boost: 1.5                # Boost factor for semantic similarity
+exact_match_boost: 2.0             # Boost factor for exact program/category matches
+deadline_priority_boost: 3.0       # Special boost for deadline-related queries
+
+# Chunking preferences
+prefer_specialized_chunks: true     # Prioritize deadline/application specific chunks
+chunk_context_weight: 0.3          # Weight for chunk context matching
+
+# Reranking parameters  
+reranker_batch_size: 16            # Larger batch size for efficiency
+min_rerank_score: -5.0             # Minimum score threshold for results
+
+# Filtering parameters
+relaxed_program_matching: true      # Allow partial program name matches
+category_strict_mode: false        # Allow category expansion based on query intent 
