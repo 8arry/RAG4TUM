@@ -1,5 +1,5 @@
 index_dir: ../../data/embeddings          # 内含 index.faiss + index.pkl + bm25.pkl
-embed_model: text-embedding-3-small
+embed_model: models/embedding-001
 reranker_model: BAAI/bge-reranker-base
 n_dense: 40                         # dense 召回量
 n_sparse: 40                        # BM25 召回量

@@ -1,14 +1,20 @@
 # build_bm25.py
-import json, pickle, pathlib, re
+import json, pickle, pathlib, re, os
+from dotenv import load_dotenv
 from rank_bm25 import BM25Okapi
 from langchain_community.vectorstores import FAISS
-from langchain_openai import OpenAIEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
+
+load_dotenv()
+api_key = os.getenv("GOOGLE_API_KEY")
+if not api_key:
+    raise ValueError("GOOGLE_API_KEY environment variable is required")
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 DOCSTORE_DIR = ROOT / "data" / "embeddings"
 
 # 1. Load LangChain vector store, get text + metadata
-emb = OpenAIEmbeddings(model="text-embedding-3-small")
+emb = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key=api_key)
 vectordb = FAISS.load_local(DOCSTORE_DIR, emb,
                             allow_dangerous_deserialization=True)
 docs = list(vectordb.docstore._dict.values())

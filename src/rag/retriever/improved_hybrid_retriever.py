@@ -4,13 +4,14 @@
 Improved Hybrid Retriever with enhanced query understanding and chunking
 """
 
-import pickle, re, pathlib, yaml, logging
+import pickle, re, pathlib, yaml, logging, os
 from typing import List, Tuple, Dict, Optional
 from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder
-from langchain_openai import OpenAIEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from improved_query_parser import enhanced_parse_query, convert_to_legacy_format
+from dotenv import load_dotenv
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -18,6 +19,12 @@ logger = logging.getLogger(__name__)
 class ImprovedHybridRetriever:
     def __init__(self, cfg_path: str = "../config/improved_retriever.yaml"):
         try:
+            # Load environment variables
+            load_dotenv()
+            api_key = os.getenv("GOOGLE_API_KEY")
+            if not api_key:
+                raise ValueError("GOOGLE_API_KEY environment variable is required")
+            
             root_dir = pathlib.Path(__file__).parent.parent.parent.parent
             cfg = yaml.safe_load(open(cfg_path, encoding="utf-8"))
             index_dir = root_dir / "data" / "embeddings"
@@ -25,7 +32,7 @@ class ImprovedHybridRetriever:
             self.cfg = cfg
             
             # Initialize embeddings and vector store
-            self.emb = OpenAIEmbeddings(model=cfg["embed_model"])
+            self.emb = GoogleGenerativeAIEmbeddings(model=cfg["embed_model"], google_api_key=api_key)
             self.vdb = FAISS.load_local(cfg["index_dir"], self.emb,
                                         allow_dangerous_deserialization=True)
             

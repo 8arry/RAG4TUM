@@ -1,5 +1,5 @@
 index_dir: ../../data/embeddings          # Vector and BM25 index directory
-embed_model: text-embedding-3-small      # OpenAI embedding model
+embed_model: models/embedding-001         # Gemini embedding model
 reranker_model: BAAI/bge-reranker-base    # Cross-encoder reranker
 
 # Retrieval parameters - optimized for accuracy over speed

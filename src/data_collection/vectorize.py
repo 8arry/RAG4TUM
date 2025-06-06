@@ -4,7 +4,7 @@
 vectorize.py  ·  TUM program data vectorization
 ------------------------------------------
 Read JSONL file →
-  · Use OpenAI for vectorization
+  · Use Google Gemini for vectorization
   · Build FAISS index
   · Save vectors and index
 
@@ -13,7 +13,7 @@ Usage
 python vectorize.py \
     --in_file data/processed/tum_program_docs.jsonl \
     --out_dir data/vectors \
-    --model text-embedding-3-small
+    --model models/embedding-001
 """
 import os
 import json
@@ -21,12 +21,14 @@ import argparse
 import pathlib
 from dotenv import load_dotenv
 from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain.docstore.document import Document
 
 
 load_dotenv()
-api_key = os.getenv("OPENAI_API_KEY")
+api_key = os.getenv("GOOGLE_API_KEY")
+if not api_key:
+    raise ValueError("GOOGLE_API_KEY environment variable is required")
 # Get the workspace root directory (2 levels up from this script)
 
 
@@ -50,8 +52,8 @@ def main():
                     help="Input JSONL file")
     ap.add_argument("--out_dir", default=WORKSPACE_ROOT / "data/embeddings",
                     help="Vector store output directory")
-    ap.add_argument("--model",   default="text-embedding-3-small",
-                    help="OpenAI embedding model")
+    ap.add_argument("--model",   default="models/embedding-001",
+                    help="Google Gemini embedding model")
     args = ap.parse_args()
 
     print("🗂  Loading JSONL …")
@@ -59,7 +61,7 @@ def main():
     print(f"Loaded {len(lc_docs)} documents")
 
     print("🔄  Embedding & building FAISS store …")
-    embedder = OpenAIEmbeddings(model=args.model)
+    embedder = GoogleGenerativeAIEmbeddings(model=args.model, google_api_key=api_key)
     vectordb  = FAISS.from_documents(lc_docs, embedder)
 
     out_dir = pathlib.Path(args.out_dir)

@@ -1,0 +1,186 @@
+{
+  "query": "What are the master program suitable for bachelor computer science and engineering student?",
+  "filters": {
+    "slug": "computer-science",
+    "degree": "msc",
+    "category": ""
+  },
+  "results": [
+    {
+      "score": 0.9717868566513062,
+      "base_score": 1.542789620444061,
+      "metadata": {
+        "program": "Computational Science and Engineering (CSE)",
+        "slug": "computational-science-and-engineering-cse",
+        "degree": "msc",
+        "category": "info",
+        "section": "program_profile",
+        "chunk_type": "content",
+        "chunk_index": 1,
+        "total_chunks": 3,
+        "links": [
+          {
+            "text": "Degree program documentation for the master's program in Computational Science and Engineering (PDF, German)",
+            "url": "https://www.tum.de/fileadmin/user_upload_87/gi32rab/Computational_Science_and_Engineering_MA_Studiengangsdokumentation_13122021.pdf"
+          }
+        ],
+        "id": "91e8715015f34b2499db19dc5682a0c4"
+      },
+      "content": "INFO · Computational Science and Engineering (CSE) · Program Profile\n\nin Computational Science and Engineering, you possess a great portfolio of skills in the areas of Computer Science, Numerical Analysis, Scientific Computing as well as their relevant Applications, Methods and Techniques. Computer Science focuses on Advanced Programming, Computer Architecture and Networks, Fundamental Algorithms, Parallel Programming, Scientific Visualization, the Programming of Supercomputers and Patterns in Software Engineering. In the area of Numerical Analysis, the core subjects offered are Numerical Programming and Parallel Numerics. You have also gained theoretical as well as practical skills in scientific computing, and are capable of applying your theoretical knowledge in your individual focus area to questions of current research. Graduates of the master’s program in Computational Science and Engineering can look forward to an inspiring career. Considered an important and dynamic field, Computational Science and Engineering is an emerging discipline that extends into all fields from which it evolved – applied mathematics, engineering and science applications, high performance computing, and many more. Accordingly, job opportunities and career paths are diverse, constantly exploring new fields of application, and usually characterized by a high level of interdisciplinarity."
+    },
+    {
+      "score": 0.9344662427902222,
+      "base_score": 1.3777246194557038,
+      "metadata": {
+        "program": "Computational Science and Engineering (CSE)",
+        "slug": "computational-science-and-engineering-cse",
+        "degree": "msc",
+        "category": "info",
+        "section": "program_structure",
+        "chunk_type": "content",
+        "chunk_index": 0,
+        "total_chunks": 1,
+        "links": [
+          {
+            "text": "Program structure & Overview of modules",
+            "url": "https://www.cit.tum.de/cit/studium/studiengaenge/master-computational-science-engineering/#c2300"
+          }
+        ],
+        "id": "a028156e2138408ca55ba44ab3469d0c"
+      },
+      "content": "INFO · Computational Science and Engineering (CSE) · Program Structure\n\nThe Master’s in Computational Science and Engineering is a multidisciplinary program taught in English over four semesters. The first three semesters involve lectures, tutorials, and seminars, while the fourth semester is reserved for your master's thesis. The program covers a wide range of subjects and research areas, including numerical analysis, computer science, scientific computing and diverse applications like computational physics, computational fluid dynamics, visualization, and many more. In order to ensure a broad spectrum of topics as well as excellent expertise in each field, the CSE program is offered in cooperation with seven TUM departments. All of the program's mandatory modules are taught in English, but some modules offered within the application areas may be bilingual (German lectures and English course material, or vice versa) or conducted in German, thus giving a broader choice of application fields."
+    },
+    {
+      "score": 0.8731536269187927,
+      "base_score": 1.5830048673283488,
+      "metadata": {
+        "program": "Health Science",
+        "slug": "health-science",
+        "degree": "bsc",
+        "category": "info",
+        "section": "program_profile",
+        "chunk_type": "content",
+        "chunk_index": 1,
+        "total_chunks": 2,
+        "links": [
+          {
+            "text": "Degree program documentation for the Bachelor’s program in Health Science (PDF, German)",
+            "url": "https://www.mh.tum.de/fileadmin/w00ckv/mh/Studium/Sport-_und_gesundheitswissenschaftliche_Studiengaenge/Studierende/1_Bachelorstudiengaenge/BGW/BGW_Studiengangsdokumentation.pdf"
+          }
+        ],
+        "id": "7b278d33bd174662aaff065e7d817174"
+      },
+      "content": "INFO · Health Science · Program Profile\n\nCurrent challenges such as demographic change, high stress levels in the workplace, physical inactivity or lack of exercise, and increasing costs in the health care system require scientifically based approaches to solutions. After graduation, you will be able to take these aspects into account when implementing preventive and health-promoting programs. In order to take the biopsychosocial model into account, you will acquire competencies in the fields of medicine, psychology and social sciences. After completing your studies, you will be able to identify current health topics in combination with the natural and life sciences (e.g. sports and nutrition sciences) as well as with technology-related fields (e.g. computer science, mechanical engineering) and the economic sciences (e.g. UnternehmerTUM) and to work on them in a solution-oriented manner. Upon completing the Bachelor’s program in Health Science, professional opportunities arise in various sectors. These include prevention centers, pension providers, care and health insurance providers, the planning and administration of public health care, and research. The Bachelor’s degree qualifies students for further academic education and suitable Master’s degree programs."
+    },
+    {
+      "score": 0.6691747307777405,
+      "base_score": 1.5549058679626162,
+      "metadata": {
+        "program": "Computational Science and Engineering (CSE)",
+        "slug": "computational-science-and-engineering-cse",
+        "degree": "msc",
+        "category": "info",
+        "section": "program_profile",
+        "chunk_type": "content",
+        "chunk_index": 0,
+        "total_chunks": 3,
+        "links": [
+          {
+            "text": "Degree program documentation for the master's program in Computational Science and Engineering (PDF, German)",
+            "url": "https://www.tum.de/fileadmin/user_upload_87/gi32rab/Computational_Science_and_Engineering_MA_Studiengangsdokumentation_13122021.pdf"
+          }
+        ],
+        "id": "9fb85726a08143a58b8e5ff51870bec4"
+      },
+      "content": "INFO · Computational Science and Engineering (CSE) · Program Profile\n\nComputational Science and Engineering (CSE) is a rapidly developing field that brings together applied mathematics (especially numerical analysis), computer science, and scientific or engineering applications. CSE focuses on developing problem-solving methodologies and robust tools for numerical simulation. To understand phenomena and processes from science and engineering, we no longer need to depend only on theory and experiment, but can also use computations. Numerical simulations supplement experiments and can even allow the examination of systems and problems that would be too time-consuming, expensive, or dangerous (if possible at all) to study by experiment alone. The high level of detail and realism in these simulations requires advanced skills in mathematical modeling, numerical analysis, efficient algorithms, computer architecture, software design and implementation, validation, and visualization of results. This program equips engineering, science, or mathematics graduates with the skills required for a successful professional or academic career in CSE. Upon graduating with a M.Sc. in Computational Science and Engineering, you possess a great portfolio of skills in the areas of Computer Science, Numerical Analysis, Scientific Computing as well as their relevant Applications, Methods and Techniques. Computer Science focuses on Advanced Programming, Computer Architecture and Networks, Fundamental Algorithms, Parallel Programming, Scientific Visualization, the Programming of Supercomputers and Patterns in Software Engineering."
+    },
+    {
+      "score": 0.6584026217460632,
+      "base_score": 1.410744304553527,
+      "metadata": {
+        "program": "Computational Science and Engineering (CSE)",
+        "slug": "computational-science-and-engineering-cse",
+        "degree": "msc",
+        "category": "desc",
+        "section": "overview",
+        "chunk_type": "content",
+        "id": "6317df4809f046a8bfc31c70f9a24a8d"
+      },
+      "content": "DESC · Overview\n\nComputational Science and Engineering (CSE) combines applied mathematics, computer science and scientific or engineering applications. It offers students a chance to become part of the elite program of the Bavarian Graduate School of Computational Engineering (BGCE)."
+    },
+    {
+      "score": 0.627022385597229,
+      "base_score": 1.4730199160114097,
+      "metadata": {
+        "program": "Mathematics in Science and Engineering",
+        "slug": "mathematics-in-science-and-engineering",
+        "degree": "msc",
+        "category": "info",
+        "section": "program_profile",
+        "chunk_type": "content",
+        "chunk_index": 0,
+        "total_chunks": 2,
+        "links": [
+          {
+            "text": "Degree program documentation for the Master’s program in Mathematics in Science and Engineering (PDF, German)",
+            "url": "https://www.tum.de/fileadmin/w00bfo/www/Studium/Studienangebot/Lesbare_Fassung/Master/Mathematics_in_Science_and_Engineering_MA_Studiengangsdokumentation_20022024.pdf"
+          }
+        ],
+        "id": "5a968d77bb9e47adb72eedb32fbbb9b5"
+      },
+      "content": "INFO · Mathematics in Science and Engineering · Program Profile\n\nThe Mathematics in Science and Engineering Master’s program is tailored to students with an interest in a demanding mathematical education and training with a special focus on questions of engineering and the natural sciences. The fundamental specialties of mathematics are therefore of central importance, including mathematical modeling, numerical analysis, applied analysis, stochastic processes and computer science. These are complemented by an applied field such as physics, structural mechanics, fluid mechanics or biomedical engineering. A solid knowledge of the basics of the chosen field is conveyed, such that students are prepared for working in interdisciplinary teams. For a comprehensive description of the program, please refer to the degree program documentation: As a graduate you can mathematically model questions of engineering and the natural sciences, mathematically analyze these so as to take into consideration the engineering context and convey the results to fellow team members in a manner that is comprehensible across disciplines. In addition to acquiring a deeper knowledge of mathematical core subjects and the chosen applied field, you will also have been able to broaden your portfolio of cross-disciplinary soft skills. As a graduate of the Mathematics in Science and Engineering master's program, you are ideally prepared for entry into interdisciplinary professional fields in the software and technology sectors."
+    },
+    {
+      "score": 0.1655152142047882,
+      "base_score": 1.348313334534726,
+      "metadata": {
+        "program": "Computational Science and Engineering (CSE)",
+        "slug": "computational-science-and-engineering-cse",
+        "degree": "msc",
+        "category": "apply",
+        "section": "application_process",
+        "chunk_type": "content",
+        "chunk_index": 0,
+        "total_chunks": 1,
+        "links": [
+          {
+            "text": "TUMonline application portal",
+            "url": "https://www.tum.de/en/studies/application/application-info-portal/online-application"
+          },
+          {
+            "text": "Here you will find detailed information on the requirements for the documents you need to upload for application and admission to TUM.",
+            "url": "https://www.tum.de/en/studies/application/application-info-portal/document-requirements"
+          },
+          {
+            "text": "reviewed in advance through uni-assist (Preliminary Documentation).",
+            "url": "https://www.tum.de/en/studies/application/application-info-portal/uni-assist"
+          },
+          {
+            "text": "Applying for a Master’s program: Application, admission requirements and more",
+            "url": "https://www.tum.de/en/studies/application/master"
+          },
+          {
+            "text": "Important information about your application from the TUM school or department",
+            "url": "https://www.cit.tum.de/cit/studium/studiengaenge/master-computational-science-engineering/#c2309"
+          }
+        ],
+        "id": "12513f3276c44adaaeeb2fe66e920cd8"
+      },
+      "content": "APPLY · Computational Science and Engineering (CSE) · Application Process\n\nMinimum requirements to apply for a Master's program at TUM are a recognized undergraduate degree (e.g. a Bachelor’s) and the successful completion of the aptitude assessment procedure. The aptitude assessment allows the TUM school to which you are applying to evaluate your individual talents and motivation for study. During the application period, you must apply through the TUMonline application portal and upload your application documents. Here you will find detailed information on the requirements for the documents you need to upload for application and admission to TUM. Generally, applicants with a qualification for postgraduate studies (e.g. a Bachelor’s) obtained outside of Germany must have their documents reviewed in advance through uni-assist (Preliminary Documentation). In detail:"
+    },
+    {
+      "score": 0.14821185171604156,
+      "base_score": 1.361564315653817,
+      "metadata": {
+        "program": "Materials Science and Engineering",
+        "slug": "materials-science-and-engineering",
+        "degree": "msc",
+        "category": "desc",
+        "section": "overview",
+        "chunk_type": "content",
+        "id": "2326ca7f5680430a843c1461704f0c88"
+      },
+      "content": "DESC · Overview\n\nThe newly developed master’s degree program Materials Science and Engineering responds to the increased demand for experts with excellent, interdisciplinary training in materials science and engineering."
+    }
+  ]
+}

@@ -1,9 +1,10 @@
-import pickle, re, pathlib, yaml, logging
+import pickle, re, pathlib, yaml, logging, os
 from typing import List, Tuple, Dict, Optional
 from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder
-from langchain_openai import OpenAIEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import FAISS
+from dotenv import load_dotenv
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -12,6 +13,12 @@ logger = logging.getLogger(__name__)
 class HybridRetriever:
     def __init__(self, cfg_path: str = "../config/retriever.yaml"):
         try:
+            # Load environment variables
+            load_dotenv()
+            api_key = os.getenv("GOOGLE_API_KEY")
+            if not api_key:
+                raise ValueError("GOOGLE_API_KEY environment variable is required")
+            
             # Get project root directory (parent of src)
             root_dir = pathlib.Path(__file__).parent.parent.parent.parent
             # Load configuration
@@ -22,7 +29,7 @@ class HybridRetriever:
             self.cfg = cfg
             
             # dense vectordb
-            self.emb = OpenAIEmbeddings(model=cfg["embed_model"])
+            self.emb = GoogleGenerativeAIEmbeddings(model=cfg["embed_model"], google_api_key=api_key)
             self.vdb = FAISS.load_local(cfg["index_dir"], self.emb,
                                         allow_dangerous_deserialization=True)
             # bm25

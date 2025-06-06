@@ -1,11 +1,12 @@
-openai>=1.0.0
+# Remove openai and langchain-openai, add google-generativeai and langchain-google-genai
+google-generativeai>=0.3.0
+langchain-google-genai>=0.0.8
 faiss-cpu>=1.7.4
 numpy>=1.24.0
 python-slugify>=8.0.1
 beautifulsoup4>=4.12.0
 requests>=2.31.0
 langchain>=0.0.267
-langchain-openai>=0.0.2
 langchain-community>=0.0.10
 sentence-transformers>=2.2.2
 rank-bm25>=0.2.2
