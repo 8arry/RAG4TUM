@@ -1,14 +1,152 @@
 import os, re, json, time, datetime, requests
 from bs4 import BeautifulSoup
 from slugify import slugify                     # pip install python-slugify
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Optional
 import urllib.parse as up
 from urllib.parse import urlparse
+import PyPDF2
+import pdfplumber
+import tempfile
+from pathlib import Path
 # ──────────────────────────────────────────────────────────────
 # Common: Whitespace normalization (remove \n\t\t → single space)
 # ──────────────────────────────────────────────────────────────
 def normalize_ws(text: str) -> str:
     return re.sub(r'\s+', ' ', text).strip()
+
+
+# ──────────────────────────────────────────────────────────────
+# PDF Processing Functions
+# ──────────────────────────────────────────────────────────────
+def is_pdf_url(url: str) -> bool:
+    """Check if URL points to a PDF file"""
+    return url.lower().endswith('.pdf') or 'pdf' in url.lower()
+
+
+def download_pdf(url: str, timeout: int = 30) -> Optional[bytes]:
+    """Download PDF content from URL"""
+    try:
+        print(f"      📄 Downloading PDF: {url}")
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+        response = requests.get(url, headers=headers, timeout=timeout)
+        response.raise_for_status()
+        
+        # Verify it's actually a PDF
+        if not response.content.startswith(b'%PDF'):
+            print(f"      ⚠️  Not a valid PDF: {url}")
+            return None
+            
+        return response.content
+    except Exception as e:
+        print(f"      ❌ Failed to download PDF {url}: {e}")
+        return None
+
+
+def extract_pdf_text(pdf_content: bytes) -> str:
+    """Extract text from PDF content using multiple methods"""
+    text_content = ""
+    
+    # Method 1: Try pdfplumber (better for complex layouts)
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:
+            tmp_file.write(pdf_content)
+            tmp_file.flush()
+            tmp_path = tmp_file.name
+        
+        try:
+            with pdfplumber.open(tmp_path) as pdf:
+                for page in pdf.pages:
+                    page_text = page.extract_text()
+                    if page_text:
+                        text_content += page_text + "\n"
+        finally:
+            # Clean up temporary file
+            try:
+                os.unlink(tmp_path)
+            except:
+                pass
+        
+        if text_content.strip():
+            print(f"      ✅ Extracted {len(text_content)} chars using pdfplumber")
+            return normalize_ws(text_content)
+    except Exception as e:
+        print(f"      ⚠️  pdfplumber failed: {e}")
+    
+    # Method 2: Fallback to PyPDF2
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:
+            tmp_file.write(pdf_content)
+            tmp_file.flush()
+            tmp_path = tmp_file.name
+        
+        try:
+            with open(tmp_path, 'rb') as file:
+                pdf_reader = PyPDF2.PdfReader(file)
+                for page in pdf_reader.pages:
+                    page_text = page.extract_text()
+                    if page_text:
+                        text_content += page_text + "\n"
+        finally:
+            # Clean up temporary file
+            try:
+                os.unlink(tmp_path)
+            except:
+                pass
+        
+        if text_content.strip():
+            print(f"      ✅ Extracted {len(text_content)} chars using PyPDF2")
+            return normalize_ws(text_content)
+    except Exception as e:
+        print(f"      ⚠️  PyPDF2 failed: {e}")
+    
+    # Method 3: Try BytesIO approach (no temp files)
+    try:
+        import io
+        pdf_bytes = io.BytesIO(pdf_content)
+        pdf_reader = PyPDF2.PdfReader(pdf_bytes)
+        for page in pdf_reader.pages:
+            page_text = page.extract_text()
+            if page_text:
+                text_content += page_text + "\n"
+        
+        if text_content.strip():
+            print(f"      ✅ Extracted {len(text_content)} chars using PyPDF2 (BytesIO)")
+            return normalize_ws(text_content)
+    except Exception as e:
+        print(f"      ⚠️  PyPDF2 BytesIO failed: {e}")
+    
+    print("      ❌ Failed to extract text from PDF")
+    return ""
+
+
+def process_pdf_link(url: str, link_text: str) -> Dict[str, str]:
+    """Download and process a PDF link"""
+    result = {
+        "text": link_text,
+        "url": url,
+        "type": "pdf",
+        "content": "",
+        "status": "failed"
+    }
+    
+    # Download PDF
+    pdf_content = download_pdf(url)
+    if not pdf_content:
+        return result
+    
+    # Extract text
+    extracted_text = extract_pdf_text(pdf_content)
+    if extracted_text:
+        result["content"] = extracted_text
+        result["status"] = "success"
+        print(f"      ✅ Successfully processed PDF: {link_text}")
+    else:
+        result["status"] = "no_text"
+        print(f"      ⚠️  PDF downloaded but no text extracted: {link_text}")
+    
+    return result
 
 
 # ──────────────────────────────────────────────────────────────
@@ -69,12 +207,12 @@ def parse_key_data(soup: BeautifulSoup) -> dict:
 
 
 # ──────────────────────────────────────────────────────────────
-# ② Generic function: Extract sections with subtitles (flowing text + links)
+# ② Generic function: Extract sections with subtitles (flowing text + links + PDFs)
 # ──────────────────────────────────────────────────────────────
 def extract_section(soup: BeautifulSoup,
                     h2_keyword: str,
                     mapping: dict[str, str]) -> dict:
-    res = {v: {"text": "", "links": []} for v in mapping.values()}
+    res = {v: {"text": "", "links": [], "pdfs": []} for v in mapping.values()}
     h2 = soup.find("h2", string=lambda t: t and h2_keyword in t.lower())
     if not h2:
         return res
@@ -94,13 +232,22 @@ def extract_section(soup: BeautifulSoup,
         # 2) Text
         elif tag.name == "p" and current_key:
             res[current_key]["text"] += normalize_ws(tag.get_text()) + " "
-        # 3) Links
+        # 3) Links and PDFs
         elif tag.name == "a" and current_key and tag.get("href"):
             url = tag["href"].strip()
             url = f"https://www.tum.de{url}" if url.startswith("/") else url
-            res[current_key]["links"].append(
-                {"text": normalize_ws(tag.get_text()), "url": url}
-            )
+            link_text = normalize_ws(tag.get_text())
+            
+            # Check if it's a PDF
+            if is_pdf_url(url):
+                print(f"    🔍 Found PDF link: {link_text} -> {url}")
+                pdf_result = process_pdf_link(url, link_text)
+                res[current_key]["pdfs"].append(pdf_result)
+            else:
+                # Regular link
+                res[current_key]["links"].append(
+                    {"text": link_text, "url": url, "type": "link"}
+                )
 
     # Clean trailing spaces
     for v in res.values():
@@ -112,6 +259,7 @@ def extract_section(soup: BeautifulSoup,
 # ③ Main function: Single page → Structured JSON
 # ──────────────────────────────────────────────────────────────
 def scrape_tum_program(url: str, program_name: str) -> dict:
+    print(f"  🎯 Scraping: {program_name}")
     html = requests.get(url, timeout=15).content
     soup = BeautifulSoup(html, "html.parser")
 
@@ -149,6 +297,7 @@ def scrape_tum_program(url: str, program_name: str) -> dict:
         "admission process": "admission_process"
     }
 
+    print(f"    📋 Processing sections...")
     data["information_on_degree_program"] = extract_section(
         soup, "information on degree program", info_map)
     data["application_and_admission"] = extract_section(

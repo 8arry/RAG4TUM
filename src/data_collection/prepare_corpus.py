@@ -107,18 +107,42 @@ def iter_chunks(rec: Dict) -> Generator[Dict, None, None]:
         for sec, payload in rec.get(block, {}).items():
             raw = normalize(payload.get("text", ""))
             links = payload.get("links", [])
-            if not raw:
-                continue
-            pieces = list(token_chunks(raw))
-            for i, piece in enumerate(pieces):
-                yield {
-                    "id": uuid.uuid4().hex,
-                    "text": f"{cat.upper()} · {sec.replace('_',' ').title()}\n\n{piece}",
-                    "metadata": {**base_meta(cat, sec),
-                                 "chunk_index": i,
-                                 "total_chunks": len(pieces),
-                                 "links": links}
-                }
+            pdfs = payload.get("pdfs", [])
+            
+            # Process main text content
+            if raw:
+                pieces = list(token_chunks(raw))
+                for i, piece in enumerate(pieces):
+                    yield {
+                        "id": uuid.uuid4().hex,
+                        "text": f"{cat.upper()} · {sec.replace('_',' ').title()}\n\n{piece}",
+                        "metadata": {**base_meta(cat, sec),
+                                     "chunk_index": i,
+                                     "total_chunks": len(pieces),
+                                     "links": links,
+                                     "pdfs": [{"text": p["text"], "url": p["url"], "status": p["status"]} for p in pdfs]}
+                    }
+            
+            # Process PDF content as separate chunks
+            for pdf in pdfs:
+                if pdf.get("status") == "success" and pdf.get("content"):
+                    pdf_text = normalize(pdf["content"])
+                    if len(pdf_text) < 50:  # Skip very short PDF content
+                        continue
+                    
+                    # Create chunks from PDF content
+                    pdf_pieces = list(token_chunks(pdf_text))
+                    for i, piece in enumerate(pdf_pieces):
+                        yield {
+                            "id": uuid.uuid4().hex,
+                            "text": f"{cat.upper()} · {sec.replace('_',' ').title()} (PDF: {pdf['text']})\n\n{piece}",
+                            "metadata": {**base_meta(cat, sec),
+                                         "chunk_index": i,
+                                         "total_chunks": len(pdf_pieces),
+                                         "source_type": "pdf",
+                                         "source_url": pdf["url"],
+                                         "source_title": pdf["text"]}
+                        }
 
     # ----- keydata -----
     yield from keydata_chunks(rec)
